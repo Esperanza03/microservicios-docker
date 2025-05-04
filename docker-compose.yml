@@ -1,0 +1,68 @@
+version: '3'
+
+services:
+  # Microservicio de base de datos
+  db:
+    image: mysql:8.0
+    container_name: microservicios-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: microservicios
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - microservicios-network
+
+  # Microservicio de Estudiante
+  estudiante:
+    build:
+      context: ./estudiante
+      dockerfile: Dockerfile
+    container_name: microservicio-estudiante
+    restart: always
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      - DATABASE_HOST=db
+      - DATABASE_USER=user
+      - DATABASE_PASSWORD=password
+      - DATABASE_NAME=microservicios
+      - DATABASE_PORT=3306
+    networks:
+      - microservicios-network
+
+  # Microservicio de Evaluación
+  evaluacion:
+    build:
+      context: ./evaluacion
+      dockerfile: Dockerfile
+    container_name: microservicio-evaluacion
+    restart: always
+    ports:
+      - "8001:8000"
+    depends_on:
+      - db
+      - estudiante
+    environment:
+      - DATABASE_HOST=db
+      - DATABASE_USER=user
+      - DATABASE_PASSWORD=password
+      - DATABASE_NAME=microservicios
+      - DATABASE_PORT=3306
+      - ESTUDIANTE_SERVICE_URL=http://estudiante:8000
+    networks:
+      - microservicios-network
+
+networks:
+  microservicios-network:
+    driver: bridge
+
+volumes:
+  db_data:
