@@ -1,4 +1,4 @@
-# Microservicios con Docker Compose
+# Microservicios con Docker Compose -Esperanza Aedo
 
 Este proyecto implementa 3 microservicios utilizando Docker Compose:
 
